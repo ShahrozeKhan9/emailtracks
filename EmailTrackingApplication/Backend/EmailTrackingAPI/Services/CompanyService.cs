@@ -48,7 +48,7 @@ namespace EmailTrackingAPI.Services
                 return null;
 
             var user = await _context.Users.FindAsync(company.UserId);
-            company.Username = user?.Username;
+            //company.Username = user?.Username;
 
             return company;
         }
@@ -129,11 +129,11 @@ namespace EmailTrackingAPI.Services
         public async Task<DuplicateCheckResponse> CheckDuplicateCompany(string companyName, int userId)
         {
             var exists = await _context.Companies
-                .AnyAsync(c => c.CompanyName.ToLower() == companyName.ToLower() && c.UserId == userId);
+                .AnyAsync(c => c.CompanyName!.ToLower() == (companyName ?? string.Empty).ToLower() && c.UserId == userId);
 
             return new DuplicateCheckResponse
             {
-                IsDuplicate = exists,
+                Exists = exists,
                 Message = exists ? "Company already exists for this user" : "Company name is available"
             };
         }

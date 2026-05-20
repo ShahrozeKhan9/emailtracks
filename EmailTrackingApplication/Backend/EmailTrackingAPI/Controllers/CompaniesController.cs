@@ -3,6 +3,7 @@ using EmailTrackingAPI.Models;
 using EmailTrackingAPI.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 
 namespace EmailTrackingAPI.Controllers
 {
@@ -59,7 +60,24 @@ namespace EmailTrackingAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<ApiResponse<Company>>> AddCompany([FromBody] AddCompanyRequest request)
         {
-            var userId = int.Parse(User.FindFirst("UserId")?.Value ?? "0");
+              Console.WriteLine(Request.Headers["userId"]);
+              if (!Request.Headers.TryGetValue("userId", out var userIdHeader))
+    {
+        return Unauthorized(new ApiResponse<DuplicateCheckResponse>
+        {
+            Success = false,
+            Message = "UserId header missing"
+        });
+    }
+    if (!int.TryParse(userIdHeader.FirstOrDefault(), out int userId))
+    {
+        return Unauthorized(new ApiResponse<DuplicateCheckResponse>
+        {
+            Success = false,
+            Message = "Invalid UserId header"
+        });
+    }
+            //var userId = int.Parse(User.FindFirst("UserId")?.Value ?? "0");
 
             if (userId == 0)
                 return Unauthorized(new ApiResponse<Company> { Success = false, Message = "User not authenticated" });
@@ -123,8 +141,28 @@ namespace EmailTrackingAPI.Controllers
 
         [HttpPost("check-duplicate")]
         public async Task<ActionResult<ApiResponse<DuplicateCheckResponse>>> CheckDuplicate([FromBody] DuplicateCheckRequest request)
+        
+        
         {
-            var userId = int.Parse(User.FindFirst("UserId")?.Value ?? "0");
+            Console.WriteLine(Request.Headers["userId"]);
+              if (!Request.Headers.TryGetValue("userId", out var userIdHeader))
+    {
+        return Unauthorized(new ApiResponse<DuplicateCheckResponse>
+        {
+            Success = false,
+            Message = "UserId header missing"
+        });
+    }
+    if (!int.TryParse(userIdHeader.FirstOrDefault(), out int userId))
+    {
+        return Unauthorized(new ApiResponse<DuplicateCheckResponse>
+        {
+            Success = false,
+            Message = "Invalid UserId header"
+        });
+    }
+     Console.WriteLine(userId);
+            // var userId = int.Parse(User.FindFirst("Userid")?.Value ?? "0");
 
             if (userId == 0)
                 return Unauthorized(new ApiResponse<DuplicateCheckResponse> { Success = false, Message = "User not authenticated" });

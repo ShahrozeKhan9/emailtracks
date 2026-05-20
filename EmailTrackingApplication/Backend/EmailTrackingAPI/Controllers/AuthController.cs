@@ -19,33 +19,44 @@ namespace EmailTrackingAPI.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<ApiResponse<LoginResponse>>> Login([FromBody] LoginRequest request)
         {
-            if (request == null || string.IsNullOrWhiteSpace(request.UsernameOrEmail) || 
-                string.IsNullOrWhiteSpace(request.Password))
+            try
             {
-                return BadRequest(new ApiResponse<LoginResponse>
+                if (request == null || string.IsNullOrWhiteSpace(request.UsernameOrEmail) || 
+                    string.IsNullOrWhiteSpace(request.Password))
                 {
-                    Success = false,
-                    Message = "Username/Email and password are required."
+                    return BadRequest(new ApiResponse<LoginResponse>
+                    {
+                        Success = false,
+                        Message = "Username/Email and password are required."
+                    });
+                }
+
+                var result = await _authService.Login(request);
+
+                if (result == null)
+                {
+                    return Unauthorized(new ApiResponse<LoginResponse>
+                    {
+                        Success = false,
+                        Message = "Invalid username/email or password."
+                    });
+                }
+
+                return Ok(new ApiResponse<LoginResponse>
+                {
+                    Success = true,
+                    Message = "Login successful.",
+                    Data = result
                 });
             }
-
-            var result = await _authService.Login(request);
-
-            if (result == null)
+            catch (Exception ex)
             {
-                return Unauthorized(new ApiResponse<LoginResponse>
+                return StatusCode(500, new ApiResponse<LoginResponse>
                 {
                     Success = false,
-                    Message = "Invalid username/email or password."
+                    Message = $"An error occurred during login: {ex.Message}"
                 });
             }
-
-            return Ok(new ApiResponse<LoginResponse>
-            {
-                Success = true,
-                Message = "Login successful.",
-                Data = result
-            });
         }
     }
 }

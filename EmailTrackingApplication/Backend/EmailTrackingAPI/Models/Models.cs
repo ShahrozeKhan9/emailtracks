@@ -42,7 +42,6 @@ namespace EmailTrackingAPI.Models
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public DateTime? LastEmailSentAt { get; set; }
-        public string? Username { get; set; }
     }
 
     public class AddCompanyRequest
