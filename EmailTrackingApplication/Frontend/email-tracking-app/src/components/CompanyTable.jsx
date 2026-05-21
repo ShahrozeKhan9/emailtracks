@@ -17,6 +17,11 @@ export const CompanyTable = ({
 
   const canEdit = (company) => isDirector || company.userId === userId;
 
+  const parseEmails = (emailString) => {
+    if (!emailString) return [];
+    return emailString.split(/[,;]/).map((email) => email.trim()).filter((email) => email);
+  };
+
   const handleEditClick = (company) => {
     if (canEdit(company)) {
       setEditingId(company.id);
@@ -44,11 +49,11 @@ export const CompanyTable = ({
           region: editingData.region,
           link: editingData.link,
           emails: editingData.emails,
-          column1: editingData.column1,
-          column2: editingData.column2,
-          column3: editingData.column3,
-          column4: editingData.column4,
-          column5: editingData.column5,
+          painPoints: editingData.painPoints,
+          exactNeeds: editingData.exactNeeds,
+          buyingTrigger: editingData.buyingTrigger,
+          bestPitchAngle: editingData.bestPitchAngle,
+          whyStrongFit: editingData.whyStrongFit,
           status: editingData.status,
         }
       );
@@ -89,11 +94,11 @@ export const CompanyTable = ({
 
   const handleSendMail = async (company) => {
     const isFilled =
-      company.column1 &&
-      company.column2 &&
-      company.column3 &&
-      company.column4 &&
-      company.column5;
+      company.painPoints &&
+      company.exactNeeds &&
+      company.buyingTrigger &&
+      company.bestPitchAngle &&
+      company.whyStrongFit;
 
     if (!isFilled) {
       onShowToast('Please fill all required columns before sending mail.', 'error');
@@ -140,13 +145,12 @@ export const CompanyTable = ({
                 <th>Id</th>
                 <th>Company Name</th>
                 <th>Region</th>
-                <th>Link</th>
                 <th>Emails</th>
-                <th>Col1</th>
-                <th>Col2</th>
-                <th>Col3</th>
-                <th>Col4</th>
-                <th>Col5</th>
+                <th>Pain Points</th>
+                <th>Exact Needs</th>
+                <th>Buying Trigger</th>
+                <th>Best Pitch Angle</th>
+                <th>Why Strong Fit</th>
                 <th>Send Mail</th>
                 <th>Status</th>
                 {isDirector && <th>Username</th>}
@@ -160,7 +164,7 @@ export const CompanyTable = ({
                   className={editingId === company.id ? 'editing' : ''}
                 >
                   <td className="id-cell">{company.id}</td>
-                  <td>
+                  <td className="company-name-cell">
                     {editingId === company.id && canEdit(company) ? (
                       <input
                         type="text"
@@ -169,6 +173,15 @@ export const CompanyTable = ({
                         onChange={handleInputChange}
                         disabled={loading}
                       />
+                    ) : company.link ? (
+                      <a
+                        href={company.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="company-link"
+                      >
+                        {company.companyName}
+                      </a>
                     ) : (
                       company.companyName
                     )}
@@ -186,26 +199,8 @@ export const CompanyTable = ({
                       company.region
                     )}
                   </td>
-                  <td className="link-cell">
-                    {editingId === company.id && canEdit(company) ? (
-                      <input
-                        type="text"
-                        name="link"
-                        value={editingData.link || ''}
-                        onChange={handleInputChange}
-                        disabled={loading}
-                      />
-                    ) : (
-                      company.link && (
-                        <a href={company.link} target="_blank" rel="noopener noreferrer">
-                          Open
-                        </a>
-                      )
-                    )}
-                  </td>
                   <td
                     className="emails-cell"
-                    title={company.emails}
                   >
                     {editingId === company.id && canEdit(company) ? (
                       <textarea
@@ -216,72 +211,78 @@ export const CompanyTable = ({
                         rows="2"
                       />
                     ) : (
-                      <span className="truncate">{company.emails}</span>
+                      <div className="emails-container">
+                        {parseEmails(company.emails).map((email) => (
+                          <div key={email} className="email-badge">
+                            {email}
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </td>
                   <td>
                     {editingId === company.id && canEdit(company) ? (
                       <input
                         type="text"
-                        name="column1"
-                        value={editingData.column1 || ''}
+                        name="painPoints"
+                        value={editingData.painPoints || ''}
                         onChange={handleInputChange}
                         disabled={loading}
                       />
                     ) : (
-                      company.column1 || '-'
+                      company.painPoints || '-'
                     )}
                   </td>
                   <td>
                     {editingId === company.id && canEdit(company) ? (
                       <input
                         type="text"
-                        name="column2"
-                        value={editingData.column2 || ''}
+                        name="exactNeeds"
+                        value={editingData.exactNeeds || ''}
                         onChange={handleInputChange}
                         disabled={loading}
                       />
                     ) : (
-                      company.column2 || '-'
+                      company.exactNeeds || '-'
                     )}
                   </td>
                   <td>
                     {editingId === company.id && canEdit(company) ? (
                       <input
                         type="text"
-                        name="column3"
-                        value={editingData.column3 || ''}
+                        name="buyingTrigger"
+                        value={editingData.buyingTrigger || ''}
                         onChange={handleInputChange}
                         disabled={loading}
                       />
                     ) : (
-                      company.column3 || '-'
+                      company.buyingTrigger || '-'
                     )}
                   </td>
                   <td>
                     {editingId === company.id && canEdit(company) ? (
                       <input
                         type="text"
-                        name="column4"
-                        value={editingData.column4 || ''}
+                        name="bestPitchAngle"
+                        value={editingData.bestPitchAngle || ''}
                         onChange={handleInputChange}
                         disabled={loading}
                       />
                     ) : (
-                      company.column4 || '-'
+                      company.bestPitchAngle || '-'
                     )}
                   </td>
                   <td>
                     {editingId === company.id && canEdit(company) ? (
                       <input
                         type="text"
-                        name="column5"
-                        value={editingData.column5 || ''}
+                        name="whyStrongFit"
+                        value={editingData.whyStrongFit || ''}
                         onChange={handleInputChange}
                         disabled={loading}
                       />
                     ) : (
-                      company.column5 || '-'
+                      company.whyStrongFit || '-'
                     )}
                   </td>
                   <td className="send-mail-cell">
@@ -291,18 +292,18 @@ export const CompanyTable = ({
                       disabled={
                         !canEdit(company) ||
                         loading ||
-                        !company.column1 ||
-                        !company.column2 ||
-                        !company.column3 ||
-                        !company.column4 ||
-                        !company.column5
+                        !company.painPoints ||
+                        !company.exactNeeds ||
+                        !company.buyingTrigger ||
+                        !company.bestPitchAngle ||
+                        !company.whyStrongFit
                       }
                       title={
-                        !company.column1 ||
-                        !company.column2 ||
-                        !company.column3 ||
-                        !company.column4 ||
-                        !company.column5
+                        !company.painPoints ||
+                        !company.exactNeeds ||
+                        !company.buyingTrigger ||
+                        !company.bestPitchAngle ||
+                        !company.whyStrongFit
                           ? 'Fill all columns first'
                           : 'Click to mark as pending'
                       }

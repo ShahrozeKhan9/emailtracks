@@ -90,17 +90,19 @@
   min-width: 50px;
 }
 
-.link-cell {
-  text-align: center;
+.company-name-cell {
+  font-weight: 500;
 }
 
-.link-cell a {
+.company-link {
   color: #2196f3;
   text-decoration: none;
   cursor: pointer;
+  transition: all 0.2s;
 }
 
-.link-cell a:hover {
+.company-link:hover {
+  color: #1976d2;
   text-decoration: underline;
 }
 
@@ -196,6 +198,27 @@
 .actions-cell {
   text-align: center;
   min-width: 160px;
+}
+
+.emails-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.email-badge {
+  display: inline-block;
+  background-color: #e3f2fd;
+  border: 1px solid #2196f3;
+  color: #1976d2;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
 }
 
 .action-buttons {

@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
 import './AddCompanyModal.css';
 import { companiesAPI } from '../services/api';
+import { authUtils } from '../services/authUtils';
 
 export const AddCompanyModal = ({ isOpen, onClose, userId, onCompanyAdded }) => {
+  const currentUser = authUtils.getUser();
   const [formData, setFormData] = useState({
+    username: currentUser?.username || '',
     companyName: '',
     region: '',
     link: '',
-    emails: '',
+    emails: [],
   });
+  const [emailInput, setEmailInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [emailError, setEmailError] = useState('');
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -21,11 +26,50 @@ export const AddCompanyModal = ({ isOpen, onClose, userId, onCompanyAdded }) => 
     setError('');
   };
 
-  const validateEmails = (emails) => {
-    if (!emails.trim()) return false;
-    const emailList = emails.split(/[,;]/).map((e) => e.trim());
+  const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailList.length > 0 && emailList.every((email) => emailRegex.test(email));
+    return emailRegex.test(email.trim());
+  };
+
+  const handleEmailKeyDown = (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      addEmail();
+    }
+  };
+
+  const addEmail = () => {
+    const email = emailInput.trim();
+    
+    if (!email) {
+      setEmailError('');
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setEmailError('Invalid email format');
+      return;
+    }
+
+    if (formData.emails.includes(email)) {
+      setEmailError('Email already added');
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      emails: [...prev.emails, email],
+    }));
+    setEmailInput('');
+    setEmailError('');
+  };
+
+  const removeEmail = (emailToRemove) => {
+    setFormData((prev) => ({
+      ...prev,
+      emails: prev.emails.filter((email) => email !== emailToRemove),
+    }));
+    setEmailError('');
   };
 
   const handleSubmit = async (e) => {
@@ -40,7 +84,7 @@ export const AddCompanyModal = ({ isOpen, onClose, userId, onCompanyAdded }) => 
       setError('Region is required.');
       return;
     }
-    if (!validateEmails(formData.emails)) {
+    if (formData.emails.length === 0) {
       setError('Please enter at least one valid email address.');
       return;
     }
@@ -56,22 +100,25 @@ export const AddCompanyModal = ({ isOpen, onClose, userId, onCompanyAdded }) => 
         return;
       }
 
-      // Add company
+      // Add company - convert emails array to comma-separated string for API
       const response = await companiesAPI.addCompany(userId, {
+        username: formData.username,
         companyName: formData.companyName,
         region: formData.region,
         link: formData.link || null,
-        emails: formData.emails,
+        emails: formData.emails.join(', '),
       });
 
       if (response.success) {
         onCompanyAdded(response.data);
         setFormData({
+          username: currentUser?.username || '',
           companyName: '',
           region: '',
           link: '',
-          emails: '',
+          emails: [],
         });
+        setEmailInput('');
         onClose();
       } else {
         setError(response.message || 'Error adding company.');
@@ -94,6 +141,19 @@ export const AddCompanyModal = ({ isOpen, onClose, userId, onCompanyAdded }) => 
         </div>
 
         <form onSubmit={handleSubmit} className="modal-form">
+          <div className="form-group">
+            <label htmlFor="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
+              disabled={true}
+              placeholder="Your username"
+            />
+            <small>Automatically filled with your current username</small>
+          </div>
+
           <div className="form-group">
             <label htmlFor="companyName">Company Name *</label>
             <input
@@ -135,16 +195,36 @@ export const AddCompanyModal = ({ isOpen, onClose, userId, onCompanyAdded }) => 
 
           <div className="form-group">
             <label htmlFor="emails">Relevant Persons Emails *</label>
-            <textarea
-              id="emails"
-              name="emails"
-              value={formData.emails}
-              onChange={handleInputChange}
-              placeholder="Enter email(s), separated by commas or semicolons"
-              rows="3"
-              disabled={loading}
-            />
-            <small>Example: email1@domain.com, email2@domain.com</small>
+            <div className="email-input-container">
+              <input
+                type="email"
+                id="emails"
+                value={emailInput}
+                onChange={(e) => setEmailInput(e.target.value)}
+                onKeyDown={handleEmailKeyDown}
+                placeholder="Enter email and press Tab to add"
+                disabled={loading}
+              />
+            </div>
+            {emailError && <div className="email-error">{emailError}</div>}
+            
+            <div className="email-cards">
+              {formData.emails.map((email) => (
+                <div key={email} className="email-card">
+                  <span className="email-text">{email}</span>
+                  <button
+                    type="button"
+                    className="email-remove-btn"
+                    onClick={() => removeEmail(email)}
+                    disabled={loading}
+                    title="Remove email"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+            <small>Press Tab after entering an email to add it</small>
           </div>
 
           {error && <div className="error-message">{error}</div>}

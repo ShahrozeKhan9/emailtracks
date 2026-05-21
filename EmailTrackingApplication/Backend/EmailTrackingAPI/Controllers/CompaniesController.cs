@@ -21,7 +21,24 @@ namespace EmailTrackingAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<ApiResponse<List<Company>>>> GetCompanies()
         {
-            var userId = int.Parse(User.FindFirst("UserId")?.Value ?? "0");
+             Console.WriteLine(Request.Headers["userId"]);
+            if (!Request.Headers.TryGetValue("userId", out var userIdHeader))
+            {
+                return Unauthorized(new ApiResponse<DuplicateCheckResponse>
+                {
+                    Success = false,
+                    Message = "UserId header missing"
+                });
+            }
+            if (!int.TryParse(userIdHeader.FirstOrDefault(), out int userId))
+            {
+                return Unauthorized(new ApiResponse<DuplicateCheckResponse>
+                {
+                    Success = false,
+                    Message = "Invalid UserId header"
+                });
+            }
+            //var userId = int.Parse(User.FindFirst("UserId")?.Value ?? "0");
             var isDirector = bool.Parse(User.FindFirst("IsDirector")?.Value ?? "false");
 
             if (userId == 0)
@@ -60,23 +77,23 @@ namespace EmailTrackingAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<ApiResponse<Company>>> AddCompany([FromBody] AddCompanyRequest request)
         {
-              Console.WriteLine(Request.Headers["userId"]);
-              if (!Request.Headers.TryGetValue("userId", out var userIdHeader))
-    {
-        return Unauthorized(new ApiResponse<DuplicateCheckResponse>
-        {
-            Success = false,
-            Message = "UserId header missing"
-        });
-    }
-    if (!int.TryParse(userIdHeader.FirstOrDefault(), out int userId))
-    {
-        return Unauthorized(new ApiResponse<DuplicateCheckResponse>
-        {
-            Success = false,
-            Message = "Invalid UserId header"
-        });
-    }
+            Console.WriteLine(Request.Headers["userId"]);
+            if (!Request.Headers.TryGetValue("userId", out var userIdHeader))
+            {
+                return Unauthorized(new ApiResponse<DuplicateCheckResponse>
+                {
+                    Success = false,
+                    Message = "UserId header missing"
+                });
+            }
+            if (!int.TryParse(userIdHeader.FirstOrDefault(), out int userId))
+            {
+                return Unauthorized(new ApiResponse<DuplicateCheckResponse>
+                {
+                    Success = false,
+                    Message = "Invalid UserId header"
+                });
+            }
             //var userId = int.Parse(User.FindFirst("UserId")?.Value ?? "0");
 
             if (userId == 0)
