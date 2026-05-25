@@ -107,15 +107,7 @@ export const LoginPage = ({ onLoginSuccess }) => {
           </button>
         </form>
 
-        <div className="demo-credentials">
-          <p>Demo Credentials:</p>
-          <div className="credential-item">
-            <strong>Director:</strong> director1 / hashed_password_123
-          </div>
-          <div className="credential-item">
-            <strong>Employee:</strong> employee1 / hashed_password_456
-          </div>
-        </div>
+       
       </div>
     </div>
   );

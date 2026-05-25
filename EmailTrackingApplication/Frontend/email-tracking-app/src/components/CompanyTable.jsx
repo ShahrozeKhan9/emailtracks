@@ -52,7 +52,7 @@ export const CompanyTable = ({
                 <col />
                 <col />
                 <col />
-                {isDirector && <col />}
+                <col />
               </colgroup>
               <thead>
                 <tr>

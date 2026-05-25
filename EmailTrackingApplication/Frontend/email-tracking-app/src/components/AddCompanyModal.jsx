@@ -110,6 +110,7 @@ export const AddCompanyModal = ({ isOpen, onClose, userId, onCompanyAdded }) => 
       });
 
       if (response.success) {
+        response.data.username = formData.username;
         onCompanyAdded(response.data);
         setFormData({
           username: currentUser?.username || '',

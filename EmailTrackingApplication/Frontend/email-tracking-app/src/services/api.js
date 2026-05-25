@@ -1,5 +1,5 @@
 // const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'http://localhost:5000/api';
 
 export const authAPI = {
   login: async (usernameOrEmail, password) => {
@@ -16,7 +16,7 @@ export const authAPI = {
 
 export const companiesAPI = {
   getCompanies: async (userId, isDirector) => {
-    console.log('Fetching companies with userId:', userId, 'isDirector:', isDirector);
+    
     const response = await fetch(`${API_BASE_URL}/companies`, {
       headers: {
         'userId': userId,
